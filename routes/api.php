@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ChatbotController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -27,3 +28,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::get('/agents', [ServiceController::class, 'listActiveServices']);
 Route::get('/agents/{slug}', [ServiceController::class, 'agentBySlug']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/chatbot', [ChatbotController::class, 'index']);
+    Route::post('/chatbot', [ChatbotController::class, 'store']);
+    Route::get('/chatbot/{id}', [ChatbotController::class, 'show']);
+});
