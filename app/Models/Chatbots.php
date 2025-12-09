@@ -34,4 +34,19 @@ class Chatbots extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function usageLogs()
+    {
+        return $this->hasMany(chatbot_usage_logs::class);
+    }
+
+    public function stats()
+    {
+        return $this->hasOne(chatbot_stats::class);
+    }
+
+    public function latestLogs($limit = 10)
+    {
+        return $this->usageLogs()->latest()->limit($limit)->get();
+    }
 }
