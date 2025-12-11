@@ -23,6 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/services', [ServiceController::class, 'store'])->middleware('permission:create services');
     Route::put('/services/update/{id}', [ServiceController::class, 'update'])->middleware('permission:update services');
     Route::delete('/services/{id}', [ServiceController::class, 'destroy'])->middleware('permission:delete services');
+    
 });
 
 
@@ -33,4 +34,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/chatbot', [ChatbotController::class, 'index']);
     Route::post('/chatbot', [ChatbotController::class, 'store']);
     Route::get('/chatbot/{id}', [ChatbotController::class, 'show']);
+    Route::get('/my-agents', [ChatbotController::class, 'myAgents']);
 });

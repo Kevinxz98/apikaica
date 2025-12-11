@@ -92,6 +92,14 @@ class ChatbotController extends Controller
 
     }
 
+    public function myAgents()
+    {
+        $agentes = Chatbots::where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+        return response()->json($agentes);
+    }
+
     /**
      * Display the specified resource.
      */
