@@ -6,6 +6,10 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\StatisticsChatbotController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\BugsController;
 
 
 Route::prefix('auth')->group(function () {
@@ -42,6 +46,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/my-agents/{public_key}', [ChatbotController::class, 'delete']);
     Route::post('/my-agents/toggle-status/{public_key}', [ChatbotController::class, 'toggleStatus']);
     Route::get('/my-agents/{public_key}',[ChatbotController::class, 'show']);
+
+    Route::post('/report-bug', [BugsController::class, 'newReport']);
+
 });
 
 //user statistics
@@ -50,6 +57,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/statistics/{public_key}/seven-days', [StatisticsChatbotController::class, 'getSevenDaysStats']);
     Route::get('/statistics/{public_key}/basic-stats', [StatisticsChatbotController::class, 'basicStats']);
     Route::get('/statistics/{public_key}', [StatisticsChatbotController::class, 'chatbotStats']);
+    Route::get('/chatbot-conversations/conversations', [ChatController::class, 'getConversations']);
+    Route::get('/chatbot-conversations/conversations/{sessionId}/messages', [ChatController::class, 'getSessionMessages']);
+    
 });
 
 Route::middleware('auth:sanctum')->get('/auth/check', function () {
@@ -57,4 +67,25 @@ Route::middleware('auth:sanctum')->get('/auth/check', function () {
         'authenticated' => true,
         'user' => auth()->user()
     ]);
+});
+
+//user profile
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/profile', [UserController::class, 'index']);
+    Route::put('/profile/update-profile', [UserController::class, 'update']);
+    Route::post('/profile/update-profile-password', [UserController::class, 'updatePass']);
+    Route::post('/profile/update-profile-notifications', [UserController::class, 'updateNotifications']);
+    Route::delete('/profile/update-delete-image-profile', [UserController::class, 'deleteProfileImage']);
+});
+
+//admim routes
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/admin/clients', [ClientsController::class, 'index'])->middleware('permission:ver usuarios');
+    Route::get('/admin/statistics', [ClientsController::class, 'statistics'])->middleware('permission:ver usuarios');
+    Route::get('/admin/clients/{id}', [ClientsController::class, 'show'])->middleware('permission:ver usuarios');
+    Route::get('/admin/agent/statistics/{public_key}/basic-stats', [StatisticsChatbotController::class, 'basicStats'])->middleware('permission:ver usuarios');
+    Route::get('/admin/agent/statistics/', [StatisticsChatbotController::class, 'chatbotStats'])->middleware('permission:ver usuarios');
+    Route::get('/admin/agent/statistics/{public_key}/seven-days', [StatisticsChatbotController::class, 'getSevenDaysStats'])->middleware('permission:ver usuarios');
+
+
 });

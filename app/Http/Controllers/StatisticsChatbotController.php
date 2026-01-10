@@ -11,6 +11,7 @@ use Carbon\Carbon;
 
 
 
+
 class StatisticsChatbotController extends Controller
 {
     public function dashboardStats()
@@ -19,18 +20,18 @@ class StatisticsChatbotController extends Controller
         $userId = auth()->id();
 
         $totalMessages = Chatbots::where('user_id', $userId)
-            ->where('created_at', '>=', now()->subDays(30))
+            
             ->orderBy('created_at', 'desc')
             ->sum('total_messages');
 
         $totalTokens = Chatbots::where('user_id', $userId)
-            ->where('created_at', '>=', now()->subDays(30))
+            
             ->orderBy('created_at', 'desc')
             ->sum('total_tokens');
 
 
         $lastActivity = Chatbots::where('user_id', $userId)
-            ->where('created_at', '>=', now()->subDays(30))
+            
             ->orderBy('created_at', 'desc')
             ->value('last_interaction');
 
@@ -52,12 +53,20 @@ class StatisticsChatbotController extends Controller
 
     public function basicStats(string $public_key)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+
+        // Verificar permisos del usuario
+        if (!$user->hasRole('admin')) {
+            $userId = auth()->id();
+        }else{
+            $userId = Chatbots::where('public_key', $public_key)
+                ->value('user_id');
+        }
+
 
         $stats = Chatbots::where('public_key', $public_key)
             ->where('user_id', $userId)
             ->where('status', 1)
-            ->where('created_at', '>=', now()->subDays(30))
             ->selectRaw('
                 user_id,
                 nombre,
@@ -88,10 +97,13 @@ class StatisticsChatbotController extends Controller
                 'status')
             ->first();
 
+          
+
         // Verificar si el chatbot existe
         if (!$stats || $stats->status != 1) {
             return response()->json(
-                ['message' => 'Chatbot no encontrado o eliminado'],
+                ['message' => 'Chatbot no encontrado o eliminado'
+            ],
                 404
             );
         }
@@ -126,15 +138,18 @@ class StatisticsChatbotController extends Controller
         // Verificar si el chatbot existe
         if (!$chatbot || $chatbot->status != 1) {
             return response()->json(
-                ['message' => 'Chatbot no encontrado o eliminado'],
+                [
+                    'message' => 'Chatbot no encontrado o eliminado',
+                    'public_key' => $public_key,
+            ],
                 404
             );
         }
 
-        $user = auth()->id();
+        $user = auth()->user();
 
         // Verificar permisos del usuario
-        if ($chatbot->user_id != $user) {
+        if ($chatbot->user_id != $user->id || !$user->hasRole('admin')) {
             return response()->json(
                 ['message' => 'Permiso denegado'],
                 401
@@ -280,10 +295,10 @@ class StatisticsChatbotController extends Controller
             );
         }
 
-        $user = auth()->id();
+        $user = auth()->user();
 
         // Verificar permisos del usuario
-        if ($chatbot->user_id != $user) {
+        if ($chatbot->user_id != $user->id && !$user->hasRole('admin')) {
             return response()->json(
                 ['message' => 'Permiso denegado'],
                 401
@@ -292,7 +307,7 @@ class StatisticsChatbotController extends Controller
 
         // Definir el periodo de 7 días
         $endDate = Carbon::now()->endOfDay();
-        $startDate = Carbon::now()->subDays(6)->startOfDay(); // 7 días incluyendo hoy
+        $startDate = Carbon::now()->subDays(6)->startOfDay(); 
 
         // Consulta principal para obtener estadísticas por día
         $statsByDay = chatbot_usage_logs::forChatbot($chatbot->id)

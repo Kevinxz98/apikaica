@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chatbots::class);
     }
+
+    public function profile()
+    {
+        return $this->hasOne(User_profile::class);
+    }
 }
