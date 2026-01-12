@@ -82,6 +82,7 @@ class ChatController extends Controller
                 'chatbot' => [
                     'id' => $chatbot->id,
                     'name' => $chatbot->name,
+                    'color' => $chatbot->color,
                     'avatar' => $chatbot->avatar ? asset('storage/' . $chatbot->avatar) : null,
                     'description' => $chatbot->description,
                 ],
@@ -135,6 +136,7 @@ class ChatController extends Controller
 
             $messages = chatbot_usage_logs::where('session_id', $sessionId)
                 ->where('chatbot_id', $chatbotId)
+                ->where('output', '!=', null)
                 ->orderBy('created_at', 'ASC')
                 ->get(['input', 'output', 'created_at', 'event_type'])
                 ->flatMap(function ($log) {
