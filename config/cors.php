@@ -15,13 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'storage/*'],
 
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:4200',
-        'https://panel.kaica.co',
+        env('FRONTEND_URL', 'http://localhost:4200'),
     ],
 
     'allowed_origins_patterns' => [],

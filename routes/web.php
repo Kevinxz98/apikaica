@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -13,8 +14,17 @@ Route::get('/chatbots/avatar/chatbots/{filename}', function ($filename) {
         abort(404);
     }
 
-    return response()->file($path, [
-        'Access-Control-Allow-Origin' => '*',
-        'Access-Control-Allow-Methods' => 'GET',
-    ]);
+    $origin = request()->headers->get('Origin');
+
+    $allowedOrigins = [
+        'http://localhost:4200',
+        'https://panel.kaica.co',
+    ];
+
+    if (in_array($origin, $allowedOrigins)) {
+        return response()->file($path, [
+            'Access-Control-Allow-Origin' => $origin,
+            'Access-Control-Allow-Methods' => 'GET',
+        ]);
+    }
 });
